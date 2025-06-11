@@ -4,6 +4,11 @@ import type { Address } from '../models/Address';
 const API_URL = import.meta.env.VITE_API_URL + "/addresses";
 
 class AddressService {
+ async getAddresses() {
+        const response = await axios.get<Address[]>(API_URL);
+        return response;
+    }
+
     async getAddress(id: number) {
         const response = await axios.get<Address>(`${API_URL}/${id}`);
         return response;
