@@ -21,7 +21,11 @@
         "vee-validate": "^4.15.0",
         "vue": "^3.5.16",
         "vue-router": "^4.4.0",
-        "zod": "^3.25.58"
+        "zod": "^3.25.58",
+        "tailwindcss": "^3.0.0",
+        "postcss": "^8.0.0",
+        "autoprefixer": "^10.0.0"
+
     },
     "devDependencies": {
         "@primevue/auto-import-resolver": "^4.2.4",

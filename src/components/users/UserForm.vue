@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store/UserStore';
+import { useRoleStore } from '@/store/RoleStore'; // Para obtener roles disponibles
 import { UserValidator } from "@/utils/UserValidators";
 import Swal from "sweetalert2";
 import { onMounted, reactive, ref } from "vue";
@@ -11,55 +12,71 @@ const user = reactive({
   name: "",
   email: "",
   password: "",
-  age: null,
-  city: "",
-  phone: "",
   is_active: false,
+
+  profile: {
+    age: null,
+    phone: "",
+  },
+  address: {
+    city: "",
+  },
+  roles: [] as number[], // Solo IDs de roles seleccionados
 });
 
 const errors = reactive<Record<string, string>>({});
 const isSubmitting = ref(false);
 const successMessage = ref("");
 const store = useUserStore();
+const roleStore = useRoleStore();
 const router = useRouter();
 
-const validateField = (field: keyof typeof user) => {
-  const result = UserValidator.validateField(field, user[field]);
+const roles = ref<{ id: number, name: string }[]>([]);
+
+const validateField = (fieldPath: string) => {
+  const [main, sub] = fieldPath.split(".");
+  const value = sub ? user[main][sub] : user[main];
+
+  const result = UserValidator.validateField(fieldPath, value);
 
   if (!result.success) {
-    errors[field] = result.error.errors[0].message;
+    errors[fieldPath] = result.error.errors[0].message;
   } else {
-    delete errors[field]; // Borra el error si es válido
+    delete errors[fieldPath];
   }
 };
 
 const validateAllFields = () => {
-  Object.keys(user).forEach((field) => {
-    validateField(field as keyof typeof user);
-  });
+  ["name", "email", "password", "profile.age", "address.city", "profile.phone"].forEach(validateField);
 };
 
-// Cargar usuario si se pasa un userId
 onMounted(async () => {
+  try {
+    roles.value = await roleStore.getAll(); // Cargar roles
+  } catch (err) {
+    console.error("Error cargando roles", err);
+  }
+
   if (props.userId) {
     try {
       const response = await store.getUser(props.userId);
-      if (response.status == 200) {
-        let fetchedUser = response.data
-        Object.assign(user, fetchedUser);
+      if (response.status === 200) {
+        const fetchedUser = response.data;
+        Object.assign(user, {
+          ...fetchedUser,
+          profile: fetchedUser.profile || { age: null, phone: "" },
+          address: fetchedUser.address || { city: "" },
+          roles: fetchedUser.roles?.map((r: any) => r.id) || [],
+        });
       }
-
-
     } catch (error) {
       console.error("Error al cargar usuario:", error);
     }
   }
 });
 
-// Enviar formulario (crear o actualizar usuario)
 const submitForm = async () => {
   validateAllFields();
-
   if (Object.keys(errors).length > 0) return;
 
   isSubmitting.value = true;
@@ -73,7 +90,7 @@ const submitForm = async () => {
       response = await store.addUser(user);
     }
 
-    if (response.status === 200 || response.status === 201) {
+    if ([200, 201].includes(response.status)) {
       Swal.fire({
         title: 'Éxito',
         text: props.userId ? 'Usuario actualizado con éxito ✅' : 'Usuario creado con éxito ✅',
@@ -81,19 +98,14 @@ const submitForm = async () => {
         confirmButtonText: 'OK',
         timer: 3000
       });
+      router.push('/users');
     } else {
-      Swal.fire({
-        title: 'Error',
-        text: `❌ Código ${response.status}: ${response.data?.message || 'Ocurrió un error'}`,
-        icon: 'error',
-        confirmButtonText: 'Intentar de nuevo',
-        timer: 3000
-      });
+      throw new Error(response.data?.message || "Error");
     }
   } catch (error) {
     Swal.fire({
       title: 'Error',
-      text: '❌ Error inesperado en la operación.',
+      text: '❌ Ocurrió un error al guardar el usuario.',
       icon: 'error',
       confirmButtonText: 'OK',
       timer: 3000
@@ -101,7 +113,6 @@ const submitForm = async () => {
   } finally {
     isSubmitting.value = false;
   }
-  router.push('/users');
 };
 </script>
 
@@ -113,57 +124,62 @@ const submitForm = async () => {
       </h2>
 
       <form @submit.prevent="submitForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="w-full">
-          <label class="block text-sm font-medium text-gray-700">Nombre:</label>
-          <input v-model="user.name" type="text" @input="validateField('name')" @blur="validateField('name')"
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
-          <span class="text-red-500 text-sm" v-if="errors.name">{{ errors.name }}</span>
+        <!-- Datos básicos -->
+        <div>
+          <label class="block">Nombre:</label>
+          <input v-model="user.name" @blur="() => validateField('name')" type="text" class="input" />
+          <span class="error" v-if="errors.name">{{ errors.name }}</span>
         </div>
 
-        <div class="w-full">
-          <label class="block text-sm font-medium text-gray-700">Email:</label>
-          <input v-model="user.email" type="email" @input="validateField('email')" @blur="validateField('email')"
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
-          <span class="text-red-500 text-sm" v-if="errors.email">{{ errors.email }}</span>
+        <div>
+          <label class="block">Email:</label>
+          <input v-model="user.email" @blur="() => validateField('email')" type="email" class="input" />
+          <span class="error" v-if="errors.email">{{ errors.email }}</span>
         </div>
 
-        <div class="w-full">
-          <label class="block text-sm font-medium text-gray-700">Contraseña:</label>
-          <input v-model="user.password" type="password" @input="validateField('password')"
-            @blur="validateField('password')"
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
-          <span class="text-red-500 text-sm" v-if="errors.password">{{ errors.password }}</span>
+        <div>
+          <label class="block">Contraseña:</label>
+          <input v-model="user.password" @blur="() => validateField('password')" type="password" class="input" />
+          <span class="error" v-if="errors.password">{{ errors.password }}</span>
         </div>
 
-        <div class="w-full">
-          <label class="block text-sm font-medium text-gray-700">Edad:</label>
-          <input v-model.number="user.age" type="number" @input="validateField('age')" @blur="validateField('age')"
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
-          <span class="text-red-500 text-sm" v-if="errors.age">{{ errors.age }}</span>
+        <!-- Profile -->
+        <div>
+          <label class="block">Edad:</label>
+          <input v-model.number="user.profile.age" @blur="() => validateField('profile.age')" type="number" class="input" />
+          <span class="error" v-if="errors['profile.age']">{{ errors['profile.age'] }}</span>
         </div>
 
-        <div class="w-full">
-          <label class="block text-sm font-medium text-gray-700">Ciudad:</label>
-          <input v-model="user.city" type="text" @input="validateField('city')" @blur="validateField('city')"
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
+        <div>
+          <label class="block">Teléfono:</label>
+          <input v-model="user.profile.phone" @blur="() => validateField('profile.phone')" type="text" class="input" />
+          <span class="error" v-if="errors['profile.phone']">{{ errors['profile.phone'] }}</span>
         </div>
 
-        <div class="w-full">
-          <label class="block text-sm font-medium text-gray-700">Teléfono:</label>
-          <input v-model="user.phone" type="text" @input="validateField('phone')" @blur="validateField('phone')"
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" />
-          <span class="text-red-500 text-sm" v-if="errors.phone">{{ errors.phone }}</span>
+        <!-- Address -->
+        <div>
+          <label class="block">Ciudad:</label>
+          <input v-model="user.address.city" @blur="() => validateField('address.city')" type="text" class="input" />
+          <span class="error" v-if="errors['address.city']">{{ errors['address.city'] }}</span>
         </div>
 
-        <div class="col-span-1 md:col-span-2 flex items-center space-x-2">
-          <input v-model="user.is_active" type="checkbox"
-            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-          <label class="text-sm font-medium text-gray-700">Activo</label>
-        </div>
-
+        <!-- Roles -->
         <div class="col-span-1 md:col-span-2">
-          <button type="submit" :disabled="Object.keys(errors).length > 0 || isSubmitting"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400">
+          <label class="block">Roles:</label>
+          <select v-model="user.roles" multiple class="input h-32">
+            <option v-for="role in roles" :key="role.id" :value="role.id">{{ role.name }}</option>
+          </select>
+        </div>
+
+        <!-- Estado activo -->
+        <div class="col-span-2 flex items-center">
+          <input type="checkbox" v-model="user.is_active" />
+          <label class="ml-2">Activo</label>
+        </div>
+
+        <!-- Botón enviar -->
+        <div class="col-span-2">
+          <button type="submit" :disabled="isSubmitting" class="btn-primary w-full">
             {{ isSubmitting ? "Enviando..." : props.userId ? "Actualizar" : "Crear" }}
           </button>
         </div>
@@ -171,3 +187,15 @@ const submitForm = async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.input {
+  @apply mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500;
+}
+.error {
+  @apply text-red-500 text-sm;
+}
+.btn-primary {
+  @apply bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400;
+}
+</style>
