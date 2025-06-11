@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold mb-4 text-gray-800">Asignaciones de Roles</h1>
 
       <router-link
-        to="/user-roles/create"
+        to="/createUserRole"
         class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition mb-4"
       >
         <PlusCircleIcon class="w-5 h-5 mr-2" />

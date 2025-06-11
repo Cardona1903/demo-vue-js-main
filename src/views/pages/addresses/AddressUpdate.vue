@@ -7,6 +7,6 @@
 
 <script setup lang="ts">
 import { Addressoute } from 'vue-router';
-import AddressForm from '@/components/addresss/AddressForm.vue';
+import AddressForm from '@/components/addresses/AddressForm.vue';
 const route = Addressoute();
 </script>

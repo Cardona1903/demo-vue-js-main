@@ -11,6 +11,150 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
+                    path: '/session',
+                    name: 'session',
+                    component: () => import('@/views/pages/sessions/SessionListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createSession',
+                    name: 'session create',
+                    component: () => import('@/views/pages/sessions/SessionCreate.vue')
+                },
+                   {
+                    path: '/updateSession/:id',
+                    name: 'session update',
+                    component: () => import('@/views/pages/sessions/SessionUpdate.vue')
+                },
+                {
+                    path: '/roles',
+                    name: 'roles',
+                    component: () => import('@/views/pages/roles/RoleListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createRole',
+                    name: 'rol create',
+                    component: () => import('@/views/pages/roles/RoleCreate.vue')
+                },
+                   {
+                    path: '/updateRole/:id',
+                    name: 'rol update',
+                    component: () => import('@/views/pages/roles/RoleUpdate.vue')
+                },
+                {
+                    path: '/rolPermission',
+                    name: 'rol permission',
+                    component: () => import('@/views/pages/rolepermissions/RolePermissionListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createRolePermission',
+                    name: 'rol permission create',
+                    component: () => import('@/views/pages/rolepermissions/RolePermissionCreate.vue')
+                },
+                   {
+                    path: '/updateRolePermission/:id',
+                    name: 'rol permission update',
+                    component: () => import('@/views/pages/rolepermissions/RolePermissionUpdate.vue')
+                },
+                {
+                    path: '/profile',
+                    name: 'profile',
+                    component: () => import('@/views/pages/profiles/ProfileListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createProfile',
+                    name: 'profile create',
+                    component: () => import('@/views/pages/profiles/ProfileCreate.vue')
+                },
+                   {
+                    path: '/updateProfile/:id',
+                    name: 'profile update',
+                    component: () => import('@/views/pages/profiles/ProfileUpdate.vue')
+                },
+                {
+                    path: '/permission',
+                    name: 'permission',
+                    component: () => import('@/views/pages/permissions/PermissionListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createPermission',
+                    name: 'permission create',
+                    component: () => import('@/views/pages/permissions/PermissionCreate.vue')
+                },
+                   {
+                    path: '/updatePermission/:id',
+                    name: 'permission update',
+                    component: () => import('@/views/pages/permissions/PermissionUpdate.vue')
+                },
+                {
+                    path: '/password',
+                    name: 'password',
+                    component: () => import('@/views/pages/passwords/PasswordListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createPassword',
+                    name: 'password create',
+                    component: () => import('@/views/pages/passwords/PasswordCreate.vue')
+                },
+                   {
+                    path: '/updatePassword/:id',
+                    name: 'password update',
+                    component: () => import('@/views/pages/passwords/PasswordUpdate.vue')
+                },
+                {
+                    path: '/userRole',
+                    name: 'userRole',
+                    component: () => import('@/views/pages/userroles/UserRoleListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createUserRole',
+                    name: 'userRole create',
+                    component: () => import('@/views/pages/userroles/UserRoleCreate.vue')
+                },
+                   {
+                    path: '/updateUserRole/:id',
+                    name: 'userRole update',
+                    component: () => import('@/views/pages/userroles/UserRoleUpdate.vue')
+                },
+                {
+                    path: '/address',
+                    name: 'address',
+                    component: () => import('@/views/pages/addresses/AddressListView.vue'),
+                    meta: {
+                        requiresAuth: true // Esta ruta requiere autenticación
+                    }
+                },
+                {
+                    path: '/createAddress',
+                    name: 'address create',
+                    component: () => import('@/views/pages/addresses/AddressCreate.vue')
+                },
+                {
+                    path: '/updateAddress/:id',
+                    name: 'address update',
+                    component: () => import('@/views/pages/addresses/AddressUpdate.vue')
+                },
+                {
                     path: '/',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
@@ -24,12 +168,12 @@ const router = createRouter({
                     }
                 },
                 {
-                    path: '/users/create',
+                    path: '/createUser',
                     name: 'users create',
                     component: () => import('@/views/pages/users/UserCreate.vue')
                 },
                 {
-                    path: '/users/update/:id',
+                    path: '/updateUser/:id',
                     name: 'users update',
                     component: () => import('@/views/pages/users/UserUpdate.vue')
                 },
