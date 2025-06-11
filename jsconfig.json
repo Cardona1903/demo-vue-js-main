@@ -4,7 +4,8 @@
             "@/*": [
                 "./src/*"
             ]
-        }
+        },
+        "module": "esnext"
     },
     "exclude": [
         "node_modules",
