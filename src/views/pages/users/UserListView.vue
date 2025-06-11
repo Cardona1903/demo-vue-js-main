@@ -88,11 +88,11 @@ onMounted(() => {
   store.fetchUsers();
 });
 
-const users = computed(() => store.users);
+const users = computed(() => store.UserStore);
 
 const deleteUser = async (id?: number) => {
   if (!id) return;
-  await store.removeUser(id);
+  await store.DeleteUser(id);
   await store.fetchUsers();
 };
 </script>

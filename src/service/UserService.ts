@@ -1,32 +1,83 @@
-import axios from 'axios';
+// src/services/UserService.ts
+import api from './axiosConfig';
 import type { User } from '../models/User';
 
-const API_URL = import.meta.env.VITE_API_URL + "/users";
-
 class UserService {
-    async getUsers() {
-        const response = await axios.get<User[]>(API_URL);
-        return response;
+  async getUsers(): Promise<User[]> {
+    try {
+      const response = await api.get('/api/Users/');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching Users:', error);
+      throw error;
     }
+  }
 
-    async getUser(id: number) {
-        const response = await axios.get<User>(`${API_URL}/${id}`);
-        return response;
+  async getUser(id: number): Promise<User> {
+    try {
+      const response = await api.get(`/api/Users/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching User ${id}:`, error);
+      throw error;
     }
+  }
 
-    async createUser(user: User) {
-        const response = await axios.post<User>(API_URL, user);
-        return response;
+  async getUserByUser(userId: number): Promise<User> {
+    try {
+      const response = await api.get(`/api/Users/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching User for user ${userId}:`, error);
+      throw error;
     }
+  }
 
-    async updateUser(id: number, user: User) {
-        const response = await axios.put<User>(`${API_URL}/${id}`, user);
-        return response;
+  async createUser(userId: number, UserData: FormData): Promise<User> {
+    try {
+      const response = await api.post(`/api/Users/user/${userId}`, UserData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating User:', error);
+      throw error;
     }
+  }
 
-    async deleteUser(id: number) {
-        await axios.delete(`${API_URL}/${id}`);
+  async updateUser(id: number, UserData: FormData): Promise<User> {
+    try {
+      const response = await api.put(`/api/Users/${id}`, UserData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating User ${id}:`, error);
+      throw error;
     }
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    try {
+      await api.delete(`/api/Users/${id}`);
+    } catch (error) {
+      console.error(`Error deleting User ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getUserImage(filename: string): Promise<string> {
+    try {
+      return `${import.meta.env.VITE_API_URL}/api/Users/${filename}`;
+    } catch (error) {
+      console.error(`Error getting image URL for ${filename}:`, error);
+      throw error;
+    }
+  }
 }
 
 export default new UserService();

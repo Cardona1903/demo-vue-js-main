@@ -67,7 +67,7 @@ const profiles = computed(() => store.profiles);
 
 const deleteProfile = async (id?: number) => {
   if (!id) return;
-  await store.removeProfile(id);
+  await store.deleteProfile(id);
   await store.fetchProfiles();
 };
 </script>

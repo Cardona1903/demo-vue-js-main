@@ -160,7 +160,7 @@ const router = createRouter({
                     component: () => import('@/views/Dashboard.vue')
                 },
                 {
-                    path: '/users',
+                    path: '/User',
                     name: 'users',
                     component: () => import('@/views/pages/users/UserListView.vue'),
                     meta: {
